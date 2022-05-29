@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do app</title>
+</head>
+
+<body>
+    <header class="header">
+        <h1>TODO APP</h1>
+    </header>
+    <main>
+        <aside id="categories">
+            <h2>List Categories</h2>
+             <button class="new-category" type="submit"> Add category </button>
+             <form id='category-form'>
+                 <label for="todo-category">Category Name</label><br>
+                 <input type="text" id="todo-category">
+                 <input type="submit" value="Add">
+             </form>
+
+            <ul id="cat-listing">
+                {% for lst in lists%}
+                <li>
+
+                    <input type="checkbox" name="{{lst.lname}}" title="{{lst.lname}}" data-id="{{lst.id}}" {% if
+                        lst.selected %} checked {%endif%}> 
+                        <span class="cat-list" data-id="{{lst.id}}">{{lst.lname}}</span> <button type="submit" data-id="{{lst.id}}" class="delete-category">delete</button>
+                </li>
+                {%endfor%}
+            </ul>
+        </aside>
+        <section >
+            <h2>Items Todo</h2>
+            <button class="new-todo" type="submit"> Add todo </button>
+            <form id='todo-form'>
+                <label for="todo-name">todo Name</label><br>
+                <input type="text" id="todo-name">
+                <input type="submit" value="Add">
+            </form>
+            <ul id="todo-listing">
+                {% for dt in data%}
+                <li>
+
+                    <input type="checkbox" name="{{dt.tname}}" title="{{dt.tname}}" data-id="{{dt.id}}" {% if
+                        dt.completed %} checked {%endif%}> <span data-id="{{dt.id}}">{{dt.tname}}</span><button type="submit" data-id="{{dt.id}}" class="delete">delete</button>
+                </li>
+                {%endfor%}
+            </ul>
+
+        </section>
+        <section>
+            
+            
+            <img src="https://th.bing.com/th/id/OIP.Nrs692HCL212r6SxNP0tbwHaJ4?w=190&h=253&c=7&r=0&o=5&pid=1.7" alt="to-do pic" >
+        </section>
+    </main>
+    <footer class="footer">&copy;ALX&amp;Udacity Fullstack Project.<br />Designed by Christopher Bundi</footer>
+</body>
+
+</html>
+<script>
+    //add a new todo item
+    const cat_form = document.getElementById('category-form')
+    const todo_form = document.getElementById('todo-form')
+    cat_form.style.visibility ='hidden'
+    todo_form.style.visibility ='hidden'
+    cat_form.style.display ='none'
+    todo_form.style.display ='none'
+    
+   let lid =1
+    document.querySelector('.new-todo').addEventListener('click',()=>{
+        todo_form.style.display = 'block'
+        todo_form.style.visibility = 'visible'
+        todo_form.addEventListener('submit',(e)=>{
+            e.preventDefault()
+            // http://127.0.0.1:5000/1/todos?
+            lid = localStorage.getItem('cat-id')
+            fetch(`/${lid}/create_todo`,{
+                method:'POST',
+                body:JSON.stringify({'tname':document.querySelector('#todo-name').value}),
+                headers:{
+                    'Content-Type':'application/json'
+                }
+            })
+            .then()
+            .then(()=>{
+
+                location.href = `/${lid}/todos`
+                
+            }
+            )
+            .catch(e=>console.log(e.message))
+           
+        })
+
+    })
+
+     //select todo item
+         const all_todo_checkbox = document.querySelectorAll('#todo-listing li input[type=checkbox]')
+            lid = localStorage.getItem('cat-id')
+            all_todo_checkbox.forEach(checked => {
+                checked.onchange = function (e) {
+                   
+                    new_comp = e.target.checked
+                    alert(new_comp = e.target.checked)
+                    todoid = e.target.dataset['id']
+                    const prompt_response = confirm("Are you sure you want to update this todo?")
+                    if (prompt_response) {
+                        fetch(`/${todoid}/set-completed`, {
+                            body: JSON.stringify({
+                                'completed': new_comp
+                            }),
+                            method: 'PATCH',
+                            header: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then()
+                            .then(() => {
+
+                                // location.href = `/${lid}/todos`
+                                location.reload()
+
+                            })
+                            .catch(e => console.log(e.message))
+
+
+                    } else {
+                        location.href = `/${lid}/todos`
+                    }
+
+
+                }
+            })    
+      
+
+
+     //delete todo item
+     const delete_todo = document.querySelectorAll('.delete')
+
+        delete_todo.forEach(del_todo => {
+
+            del_todo.addEventListener('click', (e) => {
+                lid = localStorage.getItem('cat-id')
+                const list_id = e.target.dataset['id']
+                fetch(`/${list_id}/item-delete/`)
+                    .then()
+                    .then(() => {
+                         location.href = `/${lid}/todos`
+                         location.reload()
+
+                        // document.querySelectorAll('.todo-list').forEach(elem => {
+                        //     if (elem.getAttribute('data-id') == list_id) {
+                        //         const cat_list = elem.parentElement
+                        //         cat_list.parentElement.removeChild(cat_list)
+                        //     }
+                        // })
+
+                    })
+
+            })
+        })
+    
+
+
+
+    //add a new category to the list
+    document.querySelector('.new-category').addEventListener('click',()=>{
+    
+        cat_form.style.display ='block'
+        cat_form.style.visibility ='visible'
+        cat_form.addEventListener('submit',(e)=>{
+            e.preventDefault()
+            fetch('/add-list',{
+                method:'POST',
+                body:JSON.stringify({lname:document.getElementById('todo-category').value}),
+                headers:{
+                    'Content-Type':'application/json'
+                }
+            })
+            .then((resp)=>resp.json())
+            .then((resp) => {
+                location.reload()
+                //good not deleting new item
+            //    let new_list =` <input type="checkbox" name="${resp.lname}" title="${resp.lname}" data-id="${resp.id}" > 
+            //    <span class="cat-list" data-id="${resp.id}">${resp.lname}</span> <button type="submit" data-id="${resp.id}" class="delete">delete</button>`
+                 
+                
+            //     document.getElementById('cat-listing').innerHTML += new_list
+                })
+        })
+    })
+
+    //delete to-do category
+    
+    const todo_categories= document.querySelectorAll('.delete-category')
+    
+    todo_categories.forEach(todo_category=>{
+
+        todo_category.addEventListener('click',(e)=>{
+            const list_id = e.target.dataset['id']
+            fetch(`/${list_id}/delete-category`)
+            .then(response=> response.json())
+            .then((data)=>{
+               
+                // document.querySelectorAll('.cat-list').forEach(elem=>{
+                //     if(elem.getAttribute('data-id') == list_id){
+                //         const cat_list = elem.parentElement
+                //         cat_list.parentElement.removeChild(cat_list)
+                //     }
+                // })
+                location.href ='/'
+
+
+
+            })
+
+        })
+    })
+
+
+    //select to-do category 
+    const all_checkbox = document.querySelectorAll('#cat-listing li input[type=checkbox]')
+  
+    all_checkbox.forEach(checked=>{
+        checked.onchange =function (e){
+           const lid = e.target.dataset['id']
+           const prompt_response = confirm("Are you sure you want to update all to-do under this category?")
+           if(prompt_response){
+               fetch(`/${lid}/complete_all`, {
+                   method: 'PATCH',
+                   body: JSON.stringify({ "selected": e.target.checked }),
+                   headers: {
+                       'Content-Type': 'application/json'
+                   }
+               })
+                   .then()
+                   .then(() => {
+                       location.href = `/${lid}/todos`
+                       location.reload()
+
+                   })
+                   .catch(e => console.log(e.message))
+
+
+           }else{
+               location.href = `/${lid}/todos`
+           }
+           
+            
+        }
+    })      
+
+
+    //select the category  to display its todo
+    const list_category=document.querySelectorAll(".cat-list")
+    list_category.forEach((click_category)=>{
+        click_category.addEventListener('click',(ev)=>{
+            let cat_id = ev.target.dataset["id"]
+            localStorage.setItem('cat-id',cat_id)
+            cat_id = localStorage.getItem('cat-id')
+            //get to-dos associate with an given id
+            fetch(`/${cat_id}/todos`)
+                .then()
+                .then(() => {
+                    
+                    location.href = `/${cat_id}/todos`
+                    
+                    
+                })
+            //add new to-do
+
+
+        })
+    })
+    
+     
+    
+</script>

@@ -1,0 +1,66 @@
+
+
+
+.header{
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+    
+}
+
+#categories{
+    min-width: 200px;
+    display: inline;
+    vertical-align: top;
+    float: left;
+    width: 25%;
+}
+ul{
+    list-style-type: none;
+}
+
+main{
+    overflow: hidden;
+}
+.new-todo,.new-category,input[type=submit]{
+    background-color: rgba(0, 255, 255, 0.658);
+    color: antiquewhite;
+    margin: 10px;
+    padding: 5px;
+}
+label, input{
+    margin-left: 5px;
+    font-size: 16px;
+    padding: 5px;
+
+}
+section{
+    width: 35%;
+    display: inline;
+    float: left;
+}
+.cat-list:hover{
+    background-color: rgb(52, 240, 52);
+    color: #000;
+    border-radius: 5px;
+    padding: 5px;
+
+}
+.delete,.delete-category{
+    padding: 5px;
+    border-radius: 5px;
+    background-color: rgb(214, 178, 16);
+
+}
+.footer{
+    background-color: black;
+    color: white;
+    text-align: center;
+    text-decoration: wavy;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px;
+   float: unset;
+
+}
