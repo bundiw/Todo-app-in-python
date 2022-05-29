@@ -121,7 +121,7 @@ def delete_category(list_id):
         if err:
             abort()
         else:
-            return jsonify({response: all_todo_under_category})
+            return jsonify(all_todo_under_category)
 
 
 @app.route('/<lid>/create_todo', methods=['POST'])
